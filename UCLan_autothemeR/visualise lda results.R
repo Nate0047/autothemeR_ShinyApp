@@ -9,24 +9,25 @@
 # https://stackoverflow.com/questions/64212479/can-i-manually-reorder-a-lda-gibbs-topicmodel
 
 # get poterior from fitted lda model
-lda_posterior <- posterior(local_issues.lda)
+lda_posterior <- posterior(lda)
 
 # use posterior to create each of the elements for json object
 # need phi, theta, doc.length, vocab and term frequency
-public_survey_data.dtm = public_survey_data.dtm[slam::row_sums(public_survey_data.dtm) > 0, ]
+dtm = dtm[slam::row_sums(dtm) > 0, ]
 
 phi <- as.matrix(lda_posterior$terms)
 theta <- as.matrix(lda_posterior$topics)
 vocab <- colnames(phi)
-doc.length = slam::row_sums(public_survey_data.dtm)
-term.freq = slam::col_sums(public_survey_data.dtm)[match(vocab, colnames(public_survey_data.dtm))]
+doc.length = slam::row_sums(dtm)
+term.freq = slam::col_sums(dtm)[match(vocab, colnames(dtm))]
 
-# build the elements into the json object
-json = createJSON(phi = phi, 
-                  theta = theta, 
-                  vocab = vocab, 
-                  doc.length = doc.length, 
-                  term.frequency = term.freq)
+# # build the elements into the json object
+# json <- createJSON(phi = phi,
+#                   theta = theta,
+#                   vocab = vocab,
+#                   doc.length = doc.length,
+#                   term.frequency = term.freq)
 
-# feed the json object into the package to get javascript visual
-serVis(json)
+# # feed the json object into the package to get javascript visual
+# serVis(json)
+

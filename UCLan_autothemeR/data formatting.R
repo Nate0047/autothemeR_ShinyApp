@@ -2,16 +2,20 @@
 
 # tidytext to preprocess then cast to dtm for lda analysis
 
-
 # Preprocessing --------------------------------------------------------------------------
+df <- read_excel("C:/Users/NBirdsall2/OneDrive - UCLan/_UCLan - RF in Policing/Tool Building/UCLan autothemeR/data/test data.xlsx")
+
+df %<>%
+  select(1, 2) %>%
+  na.omit
 
 # tidytext preprocessing to create count of words per person
 word_counts.df <-
   
-  public_survey_data.df %>%
+  df %>%
   
   # break down local_issues text into words
-  unnest_tokens(output = word, input = local_issues) %>%
+  unnest_tokens(output = word, input = text) %>%
   
   # take away stopwords
   anti_join(stop_words) %>%
@@ -23,10 +27,10 @@ word_counts.df <-
 # create total word count across all responses
 total_word_count.df <-
   
-  public_survey_data.df %>%
+  df %>%
   
   # break down local_issues into words
-  unnest_tokens(output = word, input = local_issues) %>%
+  unnest_tokens(output = word, input = text) %>%
   
   # get total count of each word
   group_by(word) %>%  summarise(total = n())
@@ -48,7 +52,7 @@ word_counts.df %<>%
 # Cast to DTM ----------------------------------------------------------------------------
 
 # then cast word_counts.df to a dfm (needs to reference new df)
-public_survey_data.dtm <- word_counts.df %>%
+dtm <- word_counts.df %>%
   cast_dtm(data = ., document = id, term = word, value = n)
 
 rm(total_word_count.df, word_counts.df)
