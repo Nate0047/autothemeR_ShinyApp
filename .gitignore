@@ -1,0 +1,7 @@
+# establishing gitignore file
+
+*.Rproj
+*.Rproj.user
+.Rhistory
+data
+.Rproj.user
