@@ -3,7 +3,7 @@
 # tidytext to preprocess then cast to dtm for lda analysis
 
 # Preprocessing --------------------------------------------------------------------------
-df <- read_excel("C:/Users/NBirdsall2/OneDrive - UCLan/_UCLan - RF in Policing/Tool Building/UCLan autothemeR/data/test data.xlsx")
+#df <- read_excel("C:/Users/NBirdsall2/OneDrive - UCLan/_UCLan - RF in Policing/Tool Building/UCLan autothemeR/data/test data.xlsx")
 
 df %<>%
   select(1, 2) %>%

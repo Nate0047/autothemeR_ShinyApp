@@ -15,10 +15,14 @@
 #
 # Set libPath and add shiny package
 .libPaths("C:/R library")
-setwd("C:/Users/NBirdsall2/OneDrive - UCLan/_UCLan - RF in Policing/Tool Building/UCLan autothemeR/UCLan_autothemeR")
+#setwd("C:/Users/NBirdsall2/OneDrive - UCLan/_UCLan - RF in Policing/Tool Building/UCLan autothemeR/UCLan_autothemeR")
 
 # Establish General Environment ----------------------------------------------------------
 source("environment.r")
+
+# Function to run LDA analysis on a dataframe called df and result in elements for LDAvis
+# Function to perform LDA analysis and return final objects as a dataframe
+source("lda function.r")
 
 # UI -------------------------------------------------------------------------------------
 
@@ -31,10 +35,10 @@ ui <- fluidPage(
   # Sidebar for inputs -----------------------------------------------------------------
   sidebarPanel(
     
-    # input: select a file:
+    # input (file1): select a file:
     fileInput("file1", "Choose Excel File", multiple = FALSE, placeholder = "upload file"),
     
-    # slider: to choose number of terms to display in topic_plot
+    # slider (nTerms): to choose number of terms to display in topic_plot
     sliderInput("nTerms", "Number of terms to display", min = 20, max = 40, value = 30),
     
   ),
@@ -66,40 +70,42 @@ server <- function(input, output) {
     
     req(input$file1)
     
-    df <- read_excel(path = input$file1$datapath, col_names = TRUE)
+    df <- read_excel(input$file1$datapath, col_names = TRUE)
     
+    #plot
     return(df)
     
   })
 
   # topic_plot output --------------------------------------------------------------------
-  
   # build reactive pipeline of raw data to ldaVis induction
- df <- reactive({read_excel(path = input$file1$datapath, col_names = TRUE)})
+  lda_feeder <- reactive({
   
-#-----------------------------------------------------------------------------------------
-  # NEED TO FIND SOME WAY OF PIPING FILE HERE!
-#-----------------------------------------------------------------------------------------
+  require(input$file1)
   
+  df <- readxl::read_excel(path = input$file1$datapath, col_names = TRUE)
+  
+  performLDA(df)
+  
+  })
+
   # build topic_plot visual
   output$topic_plot <- renderVis({
     
+    lda_data <- lda_feeder()
     
     # build the elements into the json object for ldaVis package to run
-    json <- 
-      createJSON(phi = phi, 
-                 theta = theta, 
-                 vocab = vocab, 
-                 doc.length = doc.length, 
-                 term.frequency = term.freq,
-                 R = input$nTerms)
+    createJSON(phi = lda_data$phi, 
+                            theta = lda_data$theta,
+                            vocab = lda_data$vocab, 
+                            doc.length = lda_data$doc.length,
+                            term.frequency = lda_data$term.freq,
+                            R = input$nTerms)
     
-    return(json)
-    
-  })
+    })
   
 }
-
+    
 # Run the application 
 shinyApp(ui = ui, server = server)
 
