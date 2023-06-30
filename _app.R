@@ -1,5 +1,5 @@
 #
-# UCLan autothemeR application.
+# autothemeR application.
 #
 # an application that takes text data and conducts LDA with interactive visual for user
 # to interact with end themes.
@@ -77,7 +77,7 @@ library(LDAvis)
 # Function to run LDA analysis on a dataframe called df and result in elements for LDAvis
 # Function to perform LDA analysis and return final objects as a dataframe
 # Function to perform LDA analysis and return final objects as a dataframe
-performLDA <- function(df) {
+performLDA <- function(df, k) {
   
   # Take df and refine
   df <- df %>%
@@ -107,7 +107,7 @@ performLDA <- function(df) {
   
   # Building topic model through LDA
   lda <- topicmodels::LDA(x = dtm,
-                          k = 10,
+                          k = k,
                           method = "Gibbs",
                           control = list(seed = 47, alpha = 0.1))
   
@@ -143,7 +143,10 @@ ui <- fluidPage(
     fileInput("file1", "Choose Excel File", multiple = FALSE, placeholder = "upload file"),
     
     # slider (nTerms): to choose number of terms to display in topic_plot
-    sliderInput("nTerms", "Number of terms to display", min = 20, max = 40, value = 30),
+    sliderInput("nTerms", "Number of terms to display", min = 10, max = 50, value = 10),
+    
+    # slider (kSelector): to choose the number of topics to display in topic_plot
+    sliderInput("kSelector", "Number of topics to create", min = 3, max = 50, value = 3)
     
   ),
   
@@ -161,7 +164,7 @@ ui <- fluidPage(
   ),
   
   # Conditional Panel --------------------------------------------------------------------
-  conditionalPanel("$('#topic_plot').hasClass('recalculating')"),
+  conditionalPanel(condition = "$('#topic_plot').hasClass('recalculating')"),
     tags$div('Stuff will load I promise - it just it may take a sec :)...')
   
   )
@@ -193,7 +196,7 @@ server <- function(input, output) {
   
   df <- readxl::read_excel(path = input$file1$datapath, col_names = TRUE)
   
-  performLDA(df)
+  performLDA(df, input$kSelector)
   
   })
 
